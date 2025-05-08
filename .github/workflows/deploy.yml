@@ -1,0 +1,35 @@
+name: Deploy Flask API
+
+on:
+  push:
+    branches: [ "main" ]  # Trigger on pushes to main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # GitHub-hosted runner
+
+    steps:
+    # 1. Checkout code
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2. Set up Python
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.9"
+
+    # 3. Install dependencies
+    - name: Install dependencies
+      run: |
+        pip install -r api/requirements.txt
+        pip install gunicorn  # Required for production server
+
+    # 4. Deploy to Heroku (example)
+    - name: Deploy to Heroku
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}  # Store this in GitHub Secrets
+        HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+      run: |
+        git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git
+        git push heroku main -f
